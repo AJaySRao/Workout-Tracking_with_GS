@@ -1,8 +1,7 @@
 import requests
 import datetime
-
-APP_ID = APP_ID
-API_KEY = API_KEY
+from requests.auth import HTTPBasicAuth
+import os
 
 GENDER = "male"
 WEIGHT_KG = 75
@@ -12,9 +11,20 @@ AGE = 26
 exercise_endpoint = "https://trackapi.nutritionix.com/v2/natural/exercise"
 
 headers = {
-    "x-app-id": APP_ID,
-    "x-app-key": API_KEY
+    "x-app-id": os.environ["app_id"],
+    "x-app-key": os.environ["api_key"]
 }
+
+
+details = {
+    "user": os.environ["USER"],
+    "pass": os.environ['PASSWORD']
+}
+
+auth_header = {
+    "Authorization": os.environ["AUTHBASIC"]
+}
+
 exercise = input("Tell me which exercise you did: ")
 parameters = {
     "query": exercise,
@@ -30,15 +40,15 @@ result = response.json()
 
 sheety_endpoint = "https://api.sheety.co/308a6d2782f06fc8638c04aff1163efc/myWorkouts/workouts"
 
-exercises = result["exercises"]
+exercise = result["exercises"]
 
 dt = datetime.datetime.now()
 
-for lists in exercises:
+for lists in exercise:
     body = {
         "workout": {
-            "name": NAME,
-            "email": EMAIL,
+            "name": os.environ["NAME"],
+            "email": os.environ["EMAIL"],
             "date": dt.strftime("%d/%m/%Y"),
             "time": dt.strftime("%H:%M:%S"),
             "duration": lists["duration_min"],
@@ -47,4 +57,8 @@ for lists in exercises:
         },
     }
     sheety_response = requests.post(url=sheety_endpoint, json=body)
-    print(sheety_response.text)
+    # print(sheety_response.text)
+
+
+new_response = requests.get(sheety_endpoint, headers=auth_header, data=details)
+# print(new_response.json())
